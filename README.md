@@ -1,4 +1,4 @@
-**NOTE**: since the original repo was taken down and it used MIT license, I guess it's okay to upload it here for people to use.
+**NOTE**: since the original repo at https://github.com/alasdairforsythe/kokoro-voice-composer was taken down and it used MIT license, I guess it's okay to upload it here for people to use.
 
 # Kokoro Voice Composer
 
