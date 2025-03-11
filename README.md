@@ -1,3 +1,5 @@
+**NOTE**: since the original repo was taken down and it used MIT license, I guess it's okay to upload it here for people to use.
+
 # Kokoro Voice Composer
 
 Kokoro Voice Composer is a Python Streamlit UI for creating and customizing text-to-speech (TTS) voices for the Kokoro TTS model. Blend existing voices, apply transformations, and export them for use with `kokoro` and `kokoro-onnx`. It will run on CPU or GPU.
