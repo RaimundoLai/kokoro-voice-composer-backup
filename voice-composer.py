@@ -39,17 +39,22 @@ st.markdown("""
 #BASE_DIR = "/data" if os.path.exists("/data") else os.getcwd() # for Hugging Face Spaces
 BASE_DIR = os.getcwd()
 GENERATED_DIR = os.path.join(BASE_DIR, "generated")
-MODEL_V1 = os.path.join(BASE_DIR, "kokoro-v1.0.onnx")
-MODEL_V1_ZH = os.path.join(BASE_DIR, "kokoro-v1.1-zh.onnx")
-VOICES_V1 = os.path.join(BASE_DIR, "voices-v1.0.bin")
-VOICES_V1_ZH = os.path.join(BASE_DIR, "voices-v1.1-zh.bin")
+KOKORO_MODELS_DIR = os.path.join(BASE_DIR, "kokoro-models")
+MODEL_V1 = os.path.join(BASE_DIR, "kokoro-models", "kokoro-v1.0.onnx")
+MODEL_V1_ZH = os.path.join(BASE_DIR, "kokoro-models", "kokoro-v1.1-zh.onnx")
+VOICES_V1 = os.path.join(BASE_DIR, "kokoro-models", "voices-v1.0.bin")
+VOICES_V1_ZH = os.path.join(BASE_DIR, "kokoro-models", "voices-v1.1-zh.bin")
+CONFIG_V1_ZH = os.path.join(BASE_DIR, "kokoro-models", "config_zh.json")
+CONFIG_V1 = os.path.join(BASE_DIR, "kokoro-models", "config.json")
 
 # Model file URLs
 MODEL_URLS = {
     MODEL_V1: "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx",
     MODEL_V1_ZH: "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.1-zh.onnx",
     VOICES_V1: "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin",
-    VOICES_V1_ZH: "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.1-zh.bin"
+    VOICES_V1_ZH: "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.1-zh.bin",
+	CONFIG_V1_ZH: "https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh/raw/main/config.json",
+	CONFIG_V1: "https://huggingface.co/hexgrad/Kokoro-82M/raw/main/config.json"
 }
 
 # Download file if it doesn’t exist
@@ -66,26 +71,28 @@ def download_file(url, dest_path):
 # Create directories and ensure model files are present
 def initialize_directories():
     os.makedirs(GENERATED_DIR, exist_ok=True)
+    os.makedirs(KOKORO_MODELS_DIR, exist_ok=True)
     for path, url in MODEL_URLS.items():
         download_file(url, path)
 
 # Language options
 LANGUAGE_MAP = {
-    'American English': {'code': 'en-us', 'g2p': lambda: en.G2P(trf=False, british=False, fallback=espeak.EspeakFallback(british=False)), 'model': MODEL_V1, 'voices': VOICES_V1},
-    'British English': {'code': 'en-gb', 'g2p': lambda: en.G2P(trf=False, british=True, fallback=espeak.EspeakFallback(british=True)), 'model': MODEL_V1, 'voices': VOICES_V1},
-    'Spanish': {'code': 'es', 'g2p': lambda: EspeakG2P(language='es'), 'model': MODEL_V1, 'voices': VOICES_V1},
-    'French': {'code': 'fr-fr', 'g2p': lambda: EspeakG2P(language='fr-fr'), 'model': MODEL_V1, 'voices': VOICES_V1},
-    'Italian': {'code': 'it', 'g2p': lambda: EspeakG2P(language='it'), 'model': MODEL_V1, 'voices': VOICES_V1},
-    'Brazilian Portuguese': {'code': 'pt-br', 'g2p': lambda: EspeakG2P(language='pt-br'), 'model': MODEL_V1, 'voices': VOICES_V1},
-    'Hindi': {'code': 'hi', 'g2p': lambda: EspeakG2P(language='hi'), 'model': MODEL_V1, 'voices': VOICES_V1},
-    'Chinese': {'code': 'zh', 'g2p': lambda: zh.ZHG2P(), 'model': MODEL_V1_ZH, 'voices': VOICES_V1_ZH},
-    'Japanese': {'code': 'ja', 'g2p': lambda: ja.JAG2P(), 'model': MODEL_V1_ZH, 'voices': VOICES_V1_ZH}
+    'American English': {'code': 'en-us', 'g2p': lambda: en.G2P(trf=False, british=False, fallback=espeak.EspeakFallback(british=False)), 'model': MODEL_V1, 'voices': VOICES_V1, 'config': CONFIG_V1},
+    'British English': {'code': 'en-gb', 'g2p': lambda: en.G2P(trf=False, british=True, fallback=espeak.EspeakFallback(british=True)), 'model': MODEL_V1, 'voices': VOICES_V1, 'config': CONFIG_V1},
+    'Spanish': {'code': 'es', 'g2p': lambda: EspeakG2P(language='es'), 'model': MODEL_V1, 'voices': VOICES_V1, 'config': CONFIG_V1},
+    'French': {'code': 'fr-fr', 'g2p': lambda: EspeakG2P(language='fr-fr'), 'model': MODEL_V1, 'voices': VOICES_V1, 'config': CONFIG_V1},
+    'Italian': {'code': 'it', 'g2p': lambda: EspeakG2P(language='it'), 'model': MODEL_V1, 'voices': VOICES_V1, 'config': CONFIG_V1},
+    'Brazilian Portuguese': {'code': 'pt-br', 'g2p': lambda: EspeakG2P(language='pt-br'), 'model': MODEL_V1, 'voices': VOICES_V1, 'config': CONFIG_V1},
+    'Hindi': {'code': 'hi', 'g2p': lambda: EspeakG2P(language='hi'), 'model': MODEL_V1, 'voices': VOICES_V1, 'config': CONFIG_V1},
+    'Chinese_v1.1': {'code': 'zh', 'g2p': lambda: zh.ZHG2P(version="1.1"), 'model': MODEL_V1_ZH, 'voices': VOICES_V1_ZH, 'config': CONFIG_V1_ZH},
+    'Chinese': {'code': 'zh', 'g2p': lambda: zh.ZHG2P(), 'model': MODEL_V1, 'voices': VOICES_V1, 'config': CONFIG_V1},
+    'Japanese': {'code': 'ja', 'g2p': lambda: ja.JAG2P(), 'model': MODEL_V1, 'voices': VOICES_V1, 'config': CONFIG_V1}
 }
 
 # KokoroStyleTransfer class
 class KokoroStyleTransfer:
-    def __init__(self, model_path, voices_path):
-        self.kokoro = Kokoro(model_path, voices_path)
+    def __init__(self, model_path, voices_path, config_path):
+        self.kokoro = Kokoro(model_path, voices_path, vocab_config=config_path)
         self.voice_cache = {}
 
     def load_original_voice(self, voice_name: str) -> np.ndarray:
@@ -103,7 +110,7 @@ class KokoroStyleTransfer:
             return voice_array
         raise ValueError(f"Generated voice {voice_name} not found in {GENERATED_DIR}")
 
-    def generate_speech(self, text: str, voice: str | np.ndarray, g2p, speed: float = 0.85, lang: str = "en-us"):
+    def generate_speech(self, text: str, voice: str | np.ndarray, g2p, speed: float = 1.00, lang: str = "en-us"):
         try:
             phonemes, _ = g2p(text)
             samples, sample_rate = self.kokoro.create(phonemes, voice=voice, speed=speed, lang=lang, is_phonemes=True)
@@ -140,7 +147,7 @@ def save_voice_bin(voice_tensor, filename):
 def save_voice_pt(voice_tensor, filename):
     if not filename.endswith('.pt'):
         filename += '.pt'
-    save_path = os.path.join(BASE_DIR, filename)
+    save_path = os.path.join(GENERATED_DIR, filename)
     voice_tensor_torch = torch.from_numpy(voice_tensor).unsqueeze(1)
     torch.save(voice_tensor_torch, save_path)
     st.write(f"Saved voice to {save_path}, shape: {voice_tensor_torch.shape}")
@@ -210,8 +217,8 @@ def load_voices(voices_path):
 
 # Cache style transfer
 @st.cache_resource
-def get_style_transfer(model_path, voices_path):
-    return KokoroStyleTransfer(model_path, voices_path)
+def get_style_transfer(model_path, voices_path, config_path):
+    return KokoroStyleTransfer(model_path, voices_path, config_path)
 
 # Main UI
 def main():
@@ -228,11 +235,11 @@ def main():
             language = st.selectbox("Language", options=list(LANGUAGE_MAP.keys()), index=0, label_visibility="collapsed", key="language_select")
         with lang_speed_cols[1]:
             st.write("<small>Speed</small>", unsafe_allow_html=True)
-            speed = st.slider("Speed", min_value=0.5, max_value=1.2, value=0.85, step=0.05, label_visibility="collapsed", key="speed_slider")
+            speed = st.slider("Speed", min_value=0.5, max_value=1.2, value=1.00, step=0.05, label_visibility="collapsed", key="speed_slider")
             
         lang_config = LANGUAGE_MAP[language]
         voices = load_voices(lang_config['voices'])
-        style_transfer = get_style_transfer(lang_config['model'], lang_config['voices'])
+        style_transfer = get_style_transfer(lang_config['model'], lang_config['voices'], lang_config['config'])
         g2p = lang_config['g2p']()
         
         st.header("Voice Blending")
